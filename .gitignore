@@ -15,6 +15,10 @@ episode_subs.ur.vtt
 episode_subs.ur.srt
 output_malayalam.mp3
 chunk_*.mp3
+*.mp4
+*.mp3
+*.srt
+*.vtt
 
 # macOS system files
 .DS_Store
