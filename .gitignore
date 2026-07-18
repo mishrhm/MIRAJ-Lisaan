@@ -19,6 +19,7 @@ chunk_*.mp3
 *.mp3
 *.srt
 *.vtt
+*.wav
 
 # macOS system files
 .DS_Store
