@@ -11,34 +11,26 @@ def download_assets(youtube_url):
         "--referer", "https://www.youtube.com/",
     ]
     
-    # 1. Subtitle extraction command with strict rate limit throttling
-    sub_command = [
-        "yt-dlp",
-        "--write-auto-subs",
-        "--sub-lang", "ur",
-        "--skip-download",
-        "-o", "episode_subs",
-        "--sleep-subtitles", "65"  # Crucial buffer to bypass the immediate 429 subtitle block
-    ] + header_args + [youtube_url]
-    
-    # 2. Main video stream command
-    video_command = [
+    # Unified command to fetch the high-quality MP4 stream AND the official English track together
+    download_command = [
         "yt-dlp",
         "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
-        "-o", "raw_video.mp4"
+        "--write-subs",            # Download the official uploaded subtitles
+        "--sub-lang", "en",        # Look specifically for the English track
+        "-o", "raw_video.mp4",     # Name the raw video stream output
+        "--sleep-subtitles", "65"  # Safeguard delay to protect against immediate 429 locks
     ] + header_args + [youtube_url]
     
     try:
-        print("[*] Fetching Urdu subtitles (This will introduce a intentional 65s pause to avoid 429 blocks)...")
-        subprocess.run(sub_command, check=True)
+        print("[*] Fetching raw video file along with official English subtitles...")
+        print("[*] (Includes an intentional 65s pause before processing to bypass strict rate limit barriers)")
+        subprocess.run(download_command, check=True)
         
-        print("[*] Downloading raw video assets...")
-        subprocess.run(video_command, check=True)
-        
-        print("[✓] All assets downloaded successfully!")
+        print("[✓] All video and subtitle assets downloaded successfully!")
         
     except subprocess.CalledProcessError as e:
         print(f"[!] Error executing yt-dlp: {e}")
+        print("[!] Note: If the subtitle portion failed, ensure the video actually has a dedicated English track uploaded.")
         sys.exit(1)
 
 if __name__ == "__main__":
