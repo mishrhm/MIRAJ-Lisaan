@@ -1,0 +1,20 @@
+# Virtual Environment
+venv/
+.env
+
+# Python caching
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local Media Assets (Crucial to ignore these heavy files)
+raw_video.mp4
+final_desktop_screening.mp4
+episode_subs.ur.vtt
+episode_subs.ur.srt
+output_malayalam.mp3
+chunk_*.mp3
+
+# macOS system files
+.DS_Store
