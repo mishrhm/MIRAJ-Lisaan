@@ -88,6 +88,10 @@ ffmpeg -i raw_video.mp4 -i output_malayalam.mp3 \
   -map 0:v -map "[mixed_audio]" -c:v copy -c:a aac final_desktop_screening.mp4
 ```
 
+### RUN BY USING
+
+python run.py "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+
 ## ⚙️ Upcoming Roadmap
 
 - [ ] Optimize compilation pipeline using asynchronous I/O and concurrent in-memory tasks.
