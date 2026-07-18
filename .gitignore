@@ -20,6 +20,7 @@ chunk_*.mp3
 *.srt
 *.vtt
 *.wav
+temp_analysis_audio.wav
 
 # macOS system files
 .DS_Store
