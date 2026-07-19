@@ -15,12 +15,14 @@ episode_subs.ur.vtt
 episode_subs.ur.srt
 output_malayalam.mp3
 temp_analysis_audio.wav
+voice_prints_final/*.*
 chunk_*.mp3
 *.mp4
 *.mp3
 *.srt
 *.vtt
 *.wav
+
 
 # macOS system files
 .DS_Store

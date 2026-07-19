@@ -77,7 +77,6 @@ def extract_character_timelines(video_audio_path, num_speakers=2):
     print(f"[✓] Successfully categorized speech into {num_speakers} active roles.")
     return timeline
     
-
 if __name__ == "__main__":
     import subprocess
     import sys
@@ -85,27 +84,51 @@ if __name__ == "__main__":
     video_file = "raw_video.mp4"
     audio_wav = "temp_analysis_audio.wav"
     
-    print("\n=== Initializing Diarization Test ===")
-    # 1. Extract a clean, 16kHz mono WAV for the AI models to read accurately
-    print(f"[*] Extracting perfectly formatted audio from {video_file}...")
+    print("\n=== Initializing Multi-Speaker Diarization Test ===")
+    
+    # 1. Extract audio if it doesn't exist yet
     try:
         subprocess.run([
             "ffmpeg", "-y", "-i", video_file, 
             "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1", audio_wav
         ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError:
-        print("[!] FFmpeg failed to extract audio. Make sure raw_video.mp4 exists.")
+        print("[!] FFmpeg extraction failed.")
         sys.exit(1)
         
-    # 2. Run the clustering algorithm
-    # Note: Set num_speakers to 2 assuming the video primarily features 2 main voices
-    timeline = extract_character_timelines(audio_wav, num_speakers=2)
+    # 2. Run clustering with an expanded cast size
+    # CHANGE: Swapped num_speakers to 5 to capture the wider ensemble cast. 
+    # (Tip: Remove 'num_speakers=5' entirely if you want the AI to guess the total count automatically)
+    timeline = extract_character_timelines(audio_wav, num_speakers=5)
     
-    # 3. Print a snippet of the results to verify it worked
-    print("\n=== Clustering Results (First 15 Segments) ===")
-    for entry in timeline[:15]:
+    # 3. Print a larger breakdown from minute 5 onwards to find clean dialogue zones
+    print("\n=== Global Cast Timeline Map (Full Episode Scan) ===")
+    
+    # Group and analyze the longest segments across the entire video
+    speaker_blocks = {f"SPEAKER_{i:02d}": [] for i in range(5)}
+    
+    for entry in timeline:
         start_sec = entry["start_ms"] / 1000
         end_sec = entry["end_ms"] / 1000
-        print(f"[{start_sec:>6.2f}s - {end_sec:>6.2f}s] -> {entry['speaker_id']}")
+        duration = end_sec - start_sec
+        speaker = entry['speaker_id']
         
-    print("\n[✓] Test complete! You can delete 'temp_analysis_audio.wav' later.")
+        if speaker in speaker_blocks:
+            speaker_blocks[speaker].append({
+                "start": start_sec,
+                "end": end_sec,
+                "duration": duration
+            })
+            
+    # Print the top 5 longest continuous lines for EACH character
+    for speaker, blocks in speaker_blocks.items():
+        print(f"\n--- Top Longest Blocks for {speaker} ---")
+        # Sort by duration descending
+        sorted_blocks = sorted(blocks, key=lambda x: x["duration"], reverse=True)
+        
+        if not sorted_blocks:
+            print("No blocks detected for this speaker.")
+            continue
+            
+        for idx, block in enumerate(sorted_blocks[:5]):
+            print(f"[{idx+1}] {block['start']:>7.2f}s - {block['end']:>7.2f}s ({block['duration']:.1f}s)")

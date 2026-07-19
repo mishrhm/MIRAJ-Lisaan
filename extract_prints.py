@@ -1,18 +1,37 @@
-# extract_prints.py
+# extract_final_prints.py
 from pydub import AudioSegment
 import os
 
-# Create a folder to hold the character voice profiles
-os.makedirs("voice_prints", exist_ok=True)
+os.makedirs("voice_prints_final", exist_ok=True)
+
+print("[*] Loading primary audio track...")
 audio = AudioSegment.from_wav("temp_analysis_audio.wav")
 
-# Based on your logs, let's extract a clean chunk for each speaker
-# SPEAKER_00 talks cleanly around 39.07s
-speaker_00_clip = audio[39070:39650]
-speaker_00_clip.export("voice_prints/SPEAKER_00_raw.wav", format="wav")
+# Mapping the absolute longest, post-intro continuous blocks from your leaderboard
+final_targets = {
+    # 1051.97s to 1058.81s (6.8s)
+    "SPEAKER_00": {"start": 1051970, "end": 1058810},
+    
+    # 2357.38s to 2363.49s (6.1s)
+    "SPEAKER_01": {"start": 2357380, "end": 2363490},
+    
+    # 872.51s to 881.31s (8.8s) - Excellent length!
+    "SPEAKER_02": {"start": 872510, "end": 881310},
+    
+    # 1194.34s to 1200.45s (6.1s)
+    "SPEAKER_03": {"start": 1194340, "end": 1200450},
+    
+    # 385.51s to 387.52s (2.0s)
+    "SPEAKER_04": {"start": 385510, "end": 387520}
+}
 
-# SPEAKER_01 talks cleanly around 20.55s
-speaker_01_clip = audio[20550:23070]
-speaker_01_clip.export("voice_prints/SPEAKER_01_raw.wav", format="wav")
+print("[*] Extracting peak dialogue footprints...")
 
-print("[✓] Extracted samples to the 'voice_prints' directory! Check them out.")
+for speaker, timing in final_targets.items():
+    clip = audio[timing["start"]:timing["end"]]
+    out_path = f"voice_prints_final/{speaker}_raw.wav"
+    clip.export(out_path, format="wav")
+    duration = (timing["end"] - timing["start"]) / 1000
+    print(f"[✓] Exported {speaker} ({duration:.1f}s from deep timeline)")
+
+print("\n[✓] All reference prints saved! Check your 'voice_prints_final/' directory.")
